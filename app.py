@@ -86,9 +86,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # Header global
-# ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="main-title">
     <h1> Minería de Datos Avanzada — Caso de Estudio #1</h1>
@@ -98,11 +96,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # Sidebar — Navegación y parámetros globales
-# ══════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Logo_LEAD_University.png/200px-Logo_LEAD_University.png",
+    st.image("img/PPPZILC6CNEV3MNGCPLFQSQJVI-301940457.png",
              width=140)
     st.markdown("---")
     st.markdown("### Módulo")
@@ -125,16 +121,12 @@ with st.sidebar:
                 unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # Carga y preprocesamiento
-# ══════════════════════════════════════════════════════════════════════════════
 raw_df = load_dataset()
 df     = clean_dataset(raw_df)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # MÓDULO 1 — Exploración de Datos
-# ══════════════════════════════════════════════════════════════════════════════
 if module == "Exploración de Datos":
     st.markdown('<span class="section-badge">Exploración de Datos</span>',
                 unsafe_allow_html=True)
@@ -149,7 +141,7 @@ if module == "Exploración de Datos":
     st.markdown("---")
 
     tab1, tab2, tab3, tab4 = st.tabs([
-        "🗃️ Muestra de Datos", "Distribuciones", "🌍 Geografía", "🔗 Correlaciones"
+        "Muestra de Datos", "Distribuciones", "Geografía", "Correlaciones"
     ])
 
     # ── Tab 1: Muestra ──────────────────────────────────────────────────────
@@ -231,9 +223,8 @@ if module == "Exploración de Datos":
         st.plotly_chart(fig, use_container_width=True)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # MÓDULO 2 — Clasificación
-# ══════════════════════════════════════════════════════════════════════════════
+
 elif module == "Clasificación":
     st.markdown('<span class="section-badge">🎯 Clasificación</span>',
                 unsafe_allow_html=True)
@@ -367,9 +358,7 @@ elif module == "Clasificación":
         st.info("Configura los parámetros y presiona **Ejecutar Benchmarking**.")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # MÓDULO 3 — Regresión
-# ══════════════════════════════════════════════════════════════════════════════
 elif module == "Regresión":
     st.markdown('<span class="section-badge"> Regresión</span>',
                 unsafe_allow_html=True)
@@ -386,7 +375,7 @@ elif module == "Regresión":
 
     X_r, y_r, feat_names_r = get_Xy(df, task="regression")
 
-    if st.button("🚀 Ejecutar Benchmarking de Regresión", type="primary"):
+    if st.button("Ejecutar Benchmarking de Regresión", type="primary"):
         with st.spinner("Ejecutando K-Fold para Regresión…"):
             metrics_df_r, oof_results = benchmark_regressors(
                 X_r, y_r, sel_regs,
@@ -470,9 +459,7 @@ elif module == "Regresión":
         st.info("Configura los parámetros y presiona **Ejecutar Benchmarking**.")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # MÓDULO 4 — Series de Tiempo
-# ══════════════════════════════════════════════════════════════════════════════
 elif module == "Series de Tiempo":
     st.markdown('<span class="section-badge">Series de Tiempo</span>',
                 unsafe_allow_html=True)
@@ -524,7 +511,7 @@ elif module == "Series de Tiempo":
         st.warning("Selecciona al menos un método en el panel lateral.")
         st.stop()
 
-    if st.button("🚀 Ejecutar Benchmarking de Series de Tiempo", type="primary"):
+    if st.button("Ejecutar Benchmarking de Series de Tiempo", type="primary"):
         with st.spinner("Entrenando modelos de series de tiempo… (puede tardar ~1-2 min)"):
             metrics_ts, forecasts_ts, extra_ts = benchmark_timeseries(
                 ts,
@@ -542,7 +529,7 @@ elif module == "Series de Tiempo":
         forecasts_ts = st.session_state["ts_forecasts"]
         extra_ts     = st.session_state["ts_extra"]
 
-        st.markdown("#### 🏆 Tabla de Benchmarking (Series de Tiempo)")
+        st.markdown("#### Tabla de Benchmarking (Series de Tiempo)")
         st.dataframe(
             styled_benchmark_table(metrics_ts.set_index("Modelo")),
             use_container_width=True,

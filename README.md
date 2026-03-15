@@ -1,5 +1,7 @@
 # BCD-7213 · Minería de Datos Avanzada — Caso de Estudio #1
 **Universidad LEAD · I Cuatrimestre 2026 · Dr. Juan Murillo-Morera**
+**Estudiantes: Pablo Garro --------- Rodrigo Vazquez**
+
 
 ## Descripción
 Aplicación Streamlit para benchmarking de modelos de **Clasificación**, **Regresión** y **Series de Tiempo** aplicados al dataset *Big Black Money Dataset* (transacciones financieras de lavado de dinero).

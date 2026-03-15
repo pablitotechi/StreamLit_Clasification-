@@ -1,106 +1,247 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
-\usepackage{geometry}
-\geometry{a4paper, margin=1in}
-\usepackage{booktabs}
-\usepackage{array}
-\usepackage{longtable}
-\usepackage{hyperref}
-\usepackage{amsmath}
-\usepackage{graphicx}
+\documentclass[12pt]{article}
 
-\title{Informe Completo: Minería de Datos Avanzada — Caso de Estudio \#1}
-\author{Pablo Garro}
-\date{15 de marzo de 2026}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+
+\title{Clasificación, Regresión y Series de Tiempo en un Dataset de Cumplimiento Financiero:\\
+Evaluación con AUC, K-Fold y Calibración}
+
+\author{
+Rodrigo Arturo Vásquez Chavarría \\
+Pablo Eduardo Garro Telles
+}
+
+\date{Costa Rica, Marzo 2026}
 
 \begin{document}
 
 \maketitle
 
+\begin{center}
+\textbf{2026 - I Minería de Datos} \\
+Profesor: Dr. Juan de Dios Murillo
+\end{center}
+
 \section{Introducción}
 
 En el contexto actual de la gestión de riesgo y cumplimiento regulatorio, las organizaciones financieras requieren herramientas analíticas capaces de identificar patrones asociados a transacciones de alto riesgo y, simultáneamente, estimar magnitudes económicas relevantes y su evolución temporal.
+
 Este estudio de caso presenta un enfoque integrado de minería de datos aplicado a un dataset de transacciones financieras con variables categóricas, numéricas y temporales (país, tipo de transacción, industria, monto en USD y fecha de transacción), además de indicadores asociados a cumplimiento y riesgo (banderas de reporte y puntajes de riesgo).
+
 El propósito es construir una aplicación gráfica mediante la utilización de la herramienta Streamlit que permita seleccionar entre problemas de clasificación, regresión y series de tiempo, ejecutar múltiples algoritmos por categoría y realizar un benchmarking reproducible.
+
 Para problemas de clasificación, se implementa una evaluación robusta basada en validación cruzada k-fold, el ajuste de probabilidad de corte y el uso del Área Bajo la Curva ROC como métrica central de comparación. Esto permite analizar el impacto del umbral de decisión en métricas operativas y mejorar la selección del modelo bajo escenarios potencialmente desbalanceados.
+
 Para regresión, se consideran modelos supervisados que estiman el monto transaccional (con transformaciones cuando sea necesario por escalas y asimetrías), comparando su desempeño mediante métricas estándar bajo un esquema consistente de entrenamiento y validación.
+
 Finalmente, para series de tiempo, se construyen series agregadas (por ejemplo, monto total por periodo, conteo de transacciones o promedio de score) y se comparan metodologías de pronóstico como Holt-Winters, ARIMA y una red neuronal, incluyendo variantes calibradas mediante búsqueda de hiperparámetros.
+
 El resultado es una solución integrada orientada tanto a la correcta aplicación metodológica como a la interpretación práctica de resultados para la toma de decisiones.
 
 \section{Marco Teórico}
 
 \subsection{Clasificación}
+
 La clasificación es una tarea supervisada de minería de datos cuyo objetivo es asignar una etiqueta discreta a cada observación a partir de un conjunto de variables predictoras.
-Los algoritmos de clasificación aprenden una función de decisión. En este estudio se emplearon siete algoritmos: Regresión Logística, Árbol de Decisión, Random Forest, Gradient Boosting, K-Nearest Neighbors, Naive Bayes, Support Vector Machine con kernel RBF.
+
+Los algoritmos de clasificación aprenden una función de decisión. En este estudio se emplearon siete algoritmos:
+
+\begin{itemize}
+\item Regresión Logística
+\item Árbol de Decisión
+\item Random Forest
+\item Gradient Boosting
+\item K-Nearest Neighbors
+\item Naive Bayes
+\item Support Vector Machine con kernel RBF
+\end{itemize}
 
 \subsection{Probabilidad de Corte}
+
 En clasificación binaria, los modelos producen una probabilidad y la clase predicha se determina comparando dicha probabilidad contra un umbral.
+
 El valor por defecto es apropiado únicamente cuando las clases están balanceadas y los costos de error son simétricos.
+
 En contextos de detección de fraude o lavado de dinero, donde la clase positiva es minoritaria y el costo de un falso negativo es elevado, permite aumentar el Recall a expensas de reducir la Precision.
+
 El umbral óptimo puede determinarse maximizando el F1-Score sobre la curva Precision-Recall.
 
 \subsection{Desbalance de Clases}
+
 Un dataset se considera desbalanceado cuando la proporción entre clases difiere significativamente.
+
 Esto sesga al clasificador hacia la clase mayoritaria, resultando en métricas de accuracy artificialmente altas que no reflejan la capacidad real de detección.
+
 La técnica SMOTE (Synthetic Minority Over-sampling Technique) genera instancias sintéticas de la clase minoritaria mediante interpolación en el espacio de características entre muestras vecinas reales.
-En este trabajo se aplicó SMOTE dentro de cada fold de validación cruzada para evitar data leakage.
+
+En este trabajo se aplicó SMOTE dentro de cada fold de validación cruzada para evitar \textit{data leakage}.
 
 \subsection{AUC}
+
 El Área Bajo la Curva ROC (AUC-ROC) mide la capacidad discriminativa de un clasificador de forma independiente al umbral de corte.
+
 La curva ROC grafica la Tasa de Verdaderos Positivos (TPR) contra la Tasa de Falsos Positivos (FPR) para todos los posibles valores de $\tau$.
-Un AUC = 1.0 indica separabilidad perfecta entre clases, mientras que AUC = 0.5 equivale a una clasificación aleatoria.
+
+Un AUC = 1.0 indica separabilidad perfecta entre clases, mientras que AUC = 0.5 equivale a una clasificación aleatoria \cite{fawcett2006introduction}.
+
 El AUC es la métrica preferida en datasets desbalanceados porque evalúa el rendimiento global del modelo sin depender de un umbral específico.
 
 \subsection{Cross Validation}
-La validación cruzada K-Fold divide el dataset en k particiones mutuamente excluyentes.
-En cada iteración se entrena el modelo con k − 1 particiones y se evalúa con la restante, repitiendo el proceso k veces.
-El estimador final es la media y desviación estándar de las métricas obtenidas en cada fold.
+
+La validación cruzada K-Fold divide el dataset en $k$ particiones mutuamente excluyentes.
+
+En cada iteración se entrena el modelo con $k-1$ particiones y se evalúa con la restante, repitiendo el proceso $k$ veces.
+
+El estimador final es la media y desviación estándar de las métricas obtenidas en cada fold \cite{kohavi1995study}.
+
 Para clasificación se utiliza la variante Stratified K-Fold, que preserva la distribución de clases en cada partición.
 
 \subsection{Modelos de Regresión}
+
 La regresión es una tarea supervisada que predice una variable continua.
-En este trabajo se incluyen modelos lineales y no lineales: Regresión Lineal, Ridge, Lasso, ElasticNet, Árbol de Decisión, Random Forest, Gradient Boosting, KNN, SVR.
-Los modelos lineales con regularización introducen un término de penalización sobre los coeficientes: Ridge minimiza $||w||_2^2$, Lasso minimiza $||w||_1$, ElasticNet combina ambas.
-Las métricas de evaluación utilizadas son: $R^2$, MAE, RMSE, MAPE.
+
+En este trabajo se incluyen modelos lineales y no lineales.
+
+Modelos lineales:
+
+\begin{itemize}
+\item Regresión Lineal
+\item Ridge
+\item Lasso
+\item ElasticNet
+\end{itemize}
+
+Modelos no lineales:
+
+\begin{itemize}
+\item Árbol de Decisión
+\item Random Forest
+\item Gradient Boosting
+\item KNN
+\item SVR
+\end{itemize}
+
+Los modelos lineales con regularización introducen un término de penalización sobre los coeficientes:
+
+\begin{itemize}
+\item Ridge minimiza $||w||_2^2$
+\item Lasso minimiza $||w||_1$
+\item ElasticNet combina ambas penalizaciones
+\end{itemize}
+
+\cite{hastie2009elements}
+
+Las métricas de evaluación utilizadas son:
+
+\begin{itemize}
+\item $R^2$
+\item MAE
+\item RMSE
+\item MAPE
+\end{itemize}
 
 \subsection{Series de Tiempo}
+
 Una serie de tiempo es una secuencia de observaciones indexadas temporalmente.
+
 El análisis de series de tiempo busca modelar la estructura temporal subyacente para realizar pronósticos fuera de muestra.
-Los componentes principales son: Tendencia, Estacionalidad, Ruido.
+
+Los componentes principales son:
+
+\begin{itemize}
+\item Tendencia
+\item Estacionalidad
+\item Ruido
+\end{itemize}
+
+\cite{hyndman2018forecasting}
 
 \subsection{ARIMA}
-El modelo ARIMA (p, d, q) combina: Proceso autorregresivo de orden p, Diferenciación de orden d, Proceso de media móvil de orden q.
+
+El modelo ARIMA $(p,d,q)$ combina:
+
+\begin{itemize}
+\item Proceso autorregresivo de orden $p$
+\item Diferenciación de orden $d$
+\item Proceso de media móvil de orden $q$
+\end{itemize}
+
 La estacionariedad se verifica mediante el test aumentado de Dickey-Fuller (ADF).
-El modelo calibrado determina automáticamente el orden óptimo minimizando el criterio AIC.
+
+El modelo calibrado determina automáticamente el orden óptimo minimizando el criterio AIC \cite{box2015time}.
+
+En este experimento el ARIMA calibrado encontró el orden $(1,0,1)$.
 
 \subsection{Holt-Winters}
+
 El método Holt-Winters extiende el suavizado exponencial simple incorporando componentes de tendencia y estacionalidad.
-Mantiene tres ecuaciones de actualización con parámetros de suavizado.
+
+Mantiene tres ecuaciones de actualización con parámetros de suavizado \cite{winters1960forecasting}.
 
 \subsection{LSTM}
+
 Las redes Long Short-Term Memory (LSTM) son un tipo de red neuronal recurrente diseñada para capturar dependencias de largo plazo en secuencias temporales.
-La unidad LSTM incorpora tres compuertas: Olvido, Entrada, Salida.
-Esto mitiga el problema del gradiente desvaneciente presente en RNNs estándar.
-En este trabajo se implementó una arquitectura de dos capas LSTM con: 64 unidades, 32 unidades, Dropout del 20\%.
+
+La unidad LSTM incorpora tres compuertas:
+
+\begin{itemize}
+\item Olvido
+\item Entrada
+\item Salida
+\end{itemize}
+
+Esto mitiga el problema del gradiente desvaneciente presente en RNNs estándar \cite{hochreiter1997lstm}.
+
+En este trabajo se implementó una arquitectura de dos capas LSTM con:
+
+\begin{itemize}
+\item 64 unidades
+\item 32 unidades
+\item Dropout del 20\%
+\end{itemize}
 
 \section{Metodología}
 
 \subsection{Dataset}
-El dataset utilizado es el Big Black Money Dataset, que contiene 9,999 registros de transacciones financieras internacionales vinculadas con potenciales actividades de lavado de dinero.
-Cada registro incluye 14 variables: Date of Transaction, Amount (USD), Country, Transaction Type, Industry, Destination Country, Source of Money, Tax Haven Country, Reported by Authority, Shell Companies Involved, Money Laundering Risk Score, Year, Month, Day, Hour, DayOfWeek, Amount\_log, Reported\_bin, Risk\_Score, High\_Risk.
+
+El dataset utilizado es el \textbf{Big Black Money Dataset}, que contiene 9,999 registros de transacciones financieras internacionales vinculadas con potenciales actividades de lavado de dinero.
+
+Cada registro incluye 14 variables.
+
 El período de cobertura es enero 2013 a diciembre 2014.
 
 \subsection{Preprocesamiento}
+
 El pipeline incluyó:
+
 \begin{itemize}
-\item Parsing de fechas con formato '\%m/\%d/\%y \%H:\%M' y conversión a datetime.
-\item Normalización del monto: quitar puntos como separadores de miles, convertir a float, aplicar log-transform (log1p) para escalar magnitudes.
-\item Conversión de booleanos texto a int (True/False $\rightarrow$ 1/0).
-\item Codificación categórica con LabelEncoder para variables como Country, Transaction Type, etc.
-\item Definición de variable objetivo High\_Risk = (Risk\_Score >= 7).
-\item Eliminación de nulos en columnas críticas.
-\item Escalado MinMax para features numéricas.
+\item Parsing de fechas
+\item Normalización del monto
+\item Transformación logarítmica
+\item Codificación categórica
+\item Definición de variable objetivo
+\item Escalado MinMax
+\end{itemize}
+
+\subsection{División Train/Test}
+
+Para clasificación y regresión se utilizó K-Fold Cross Validation.
+
+Para series de tiempo se utilizó división cronológica:
+
+\begin{itemize}
+\item 80\% entrenamiento
+\item 20\% prueba
 \end{itemize}
 
 \subsection{División Train/Test}

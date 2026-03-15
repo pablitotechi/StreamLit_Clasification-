@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from imblearn.over_sampling import SMOTE
 
 # ── Módulos del proyecto ───────────────────────────────────────────────────────
 from src.io import load_dataset
@@ -261,6 +262,22 @@ elif module == "Clasificación":
 
     # ── Entrenamiento ───────────────────────────────────────────────────────
     X, y, feat_names = get_Xy(df, task="classification")
+
+    # ── Balance de clases después del SMOTE (demo) ──────────────────────────
+    if use_smote:
+        with st.expander("Balance de clases después del SMOTE (demo)"):
+            sm = SMOTE(random_state=42)
+            X_sm, y_sm = sm.fit_resample(X, y)
+            vc_after = y_sm.value_counts()
+            c1, c2 = st.columns(2)
+            c1.metric("Clase 0 (Bajo Riesgo)", f"{vc_after.get(0,0):,}")
+            c2.metric("Clase 1 (Alto Riesgo)", f"{vc_after.get(1,0):,}")
+            fig_after = px.pie(
+                values=vc_after.values, names=["Bajo Riesgo", "Alto Riesgo"],
+                color_discrete_sequence=[COLORS["primary"], COLORS["secondary"]],
+                height=300, template="plotly_white"
+            )
+            st.plotly_chart(fig_after, use_container_width=True)
 
     if st.button("Ejecutar Benchmarking de Clasificación", type="primary"):
         with st.spinner("Ejecutando K-Fold Cross Validation…"):
@@ -573,8 +590,18 @@ elif module == "Series de Tiempo":
                 ))
 
         # Línea divisoria train/test
-        fig_comp.add_vline(x=te_idx[0].isoformat(), line_dash="dot", line_color="grey",
-                           annotation_text="Train|Test")
+        fig_comp.add_shape(
+            type="line",
+            x0=te_idx[0], x1=te_idx[0],
+            y0=0, y1=1,
+            xref="x", yref="paper",
+            line=dict(dash="dot", color="grey")
+        )
+        fig_comp.add_annotation(
+            x=te_idx[0], y=0.5, xref="x", yref="paper",
+            text="Train|Test", showarrow=False,
+            font=dict(size=10, color="grey")
+        )
 
         fig_comp.update_layout(
             title="Comparación de Métodos — Zona de Prueba",

@@ -60,7 +60,7 @@ Abre tu navegador en `http://localhost:8501`
 | Módulo | Descripción |
 |--------|-------------|
 | 📊 Exploración | EDA interactivo: distribuciones, geografía, correlaciones |
-| 🎯 Clasificación | 7 modelos · K-Fold · SMOTE · Umbral de corte · ROC/AUC |
+| 🎯 Clasificación | 7 modelos · K-Fold · SMOTE · Umbral de corte · ROC/AUC · Visualización de balance de clases |
 | 📈 Regresión | 9 modelos · K-Fold · R², MAE, RMSE, MAPE |
 | 📉 Series de Tiempo | HW · HW-Cal · ARIMA · ARIMA-Cal · LSTM |
 
@@ -71,7 +71,7 @@ Abre tu navegador en `http://localhost:8501`
 - **Probabilidad de Corte (cutoff):** slider interactivo que ajusta el umbral de decisión para clases desbalanceadas
 - **K-Fold Cross Validation:** `StratifiedKFold` (clasificación) y `KFold` (regresión) configurable desde la UI
 - **AUC (Area Under the Curve):** curvas ROC superpuestas con Plotly para comparar modelos visualmente
-- **SMOTE:** balanceo de clases minoritarias dentro de cada fold para evitar data leakage
+- **SMOTE:** balanceo de clases minoritarias dentro de cada fold para evitar data leakage, con visualización del balance antes y después
 - **ARIMA Calibrado:** grid search sobre (p,d,q) minimizando AIC con test ADF para determinar d
 - **LSTM:** red neuronal recurrente con predicción iterativa multi-paso
 

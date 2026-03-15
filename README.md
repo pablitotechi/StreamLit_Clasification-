@@ -1,6 +1,6 @@
 # BCD-7213 · Minería de Datos Avanzada — Caso de Estudio #1
 **Universidad LEAD · I Cuatrimestre 2026 · Dr. Juan Murillo-Morera**
-**Estudiantes: Pablo Garro --------- Rodrigo Vazquez**
+**Estudiantes: Pablo Garro y Rodrigo Vazquez**
 
 
 ## Descripción

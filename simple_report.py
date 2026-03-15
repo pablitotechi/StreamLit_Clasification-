@@ -62,19 +62,62 @@ El resultado es una solución integrada orientada tanto a la correcta aplicació
 story.append(Paragraph(intro, normal_style))
 story.append(Spacer(1, 12))
 
-# Marco Teórico (resumido)
+# Marco Teórico (detallado)
 story.append(Paragraph("2. Marco Teórico", styles['Heading1']))
 marco = """
-2.1. Clasificación: Tarea supervisada para asignar etiquetas discretas. Algoritmos: Regresión Logística, Árbol de Decisión, Random Forest, Gradient Boosting, K-Nearest Neighbors, Naive Bayes, SVM.
-2.2. Probabilidad de Corte: Umbral para convertir probabilidades en clases. Ajustable para datasets desbalanceados.
-2.3. Desbalance de Clases: Técnica SMOTE genera muestras sintéticas para la clase minoritaria.
-2.4. AUC: Área Bajo la Curva ROC mide capacidad discriminativa independiente del umbral.
-2.5. Cross Validation: K-Fold divide dataset en k particiones para evaluación robusta.
-2.6. Modelos de Regresión: Lineales (Ridge, Lasso) y no lineales (Random Forest, etc.). Métricas: R², MAE, RMSE, MAPE.
-2.7. Series de Tiempo: Modelan dependencias temporales. Componentes: Tendencia, Estacionalidad, Ruido.
-2.8. ARIMA: Modelo (p,d,q) con diferenciación y media móvil.
-2.9. Holt-Winters: Suavizado exponencial con tendencia y estacionalidad.
-2.10. LSTM: Red neuronal recurrente para secuencias largas.
+2.1. Clasificación
+La clasificación es una tarea supervisada de minería de datos cuyo objetivo es asignar una etiqueta discreta a cada observación a partir de un conjunto de variables predictoras.
+Los algoritmos de clasificación aprenden una función de decisión. En este estudio se emplearon siete algoritmos: Regresión Logística, Árbol de Decisión, Random Forest, Gradient Boosting, K-Nearest Neighbors, Naive Bayes, Support Vector Machine con kernel RBF.
+
+2.2. Probabilidad de Corte
+En clasificación binaria, los modelos producen una probabilidad y la clase predicha se determina comparando dicha probabilidad contra un umbral.
+El valor por defecto es apropiado únicamente cuando las clases están balanceadas y los costos de error son simétricos.
+En contextos de detección de fraude o lavado de dinero, donde la clase positiva es minoritaria y el costo de un falso negativo es elevado, permite aumentar el Recall a expensas de reducir la Precision.
+El umbral óptimo puede determinarse maximizando el F1-Score sobre la curva Precision-Recall.
+
+2.3. Desbalance de Clases
+Un dataset se considera desbalanceado cuando la proporción entre clases difiere significativamente.
+Esto sesga al clasificador hacia la clase mayoritaria, resultando en métricas de accuracy artificialmente altas que no reflejan la capacidad real de detección.
+La técnica SMOTE (Synthetic Minority Over-sampling Technique) genera instancias sintéticas de la clase minoritaria mediante interpolación en el espacio de características entre muestras vecinas reales.
+En este trabajo se aplicó SMOTE dentro de cada fold de validación cruzada para evitar data leakage.
+
+2.4. AUC
+El Área Bajo la Curva ROC (AUC-ROC) mide la capacidad discriminativa de un clasificador de forma independiente al umbral de corte.
+La curva ROC grafica la Tasa de Verdaderos Positivos (TPR) contra la Tasa de Falsos Positivos (FPR) para todos los posibles valores de τ.
+Un AUC = 1.0 indica separabilidad perfecta entre clases, mientras que AUC = 0.5 equivale a una clasificación aleatoria.
+El AUC es la métrica preferida en datasets desbalanceados porque evalúa el rendimiento global del modelo sin depender de un umbral específico.
+
+2.5. Cross Validation
+La validación cruzada K-Fold divide el dataset en k particiones mutuamente excluyentes.
+En cada iteración se entrena el modelo con k − 1 particiones y se evalúa con la restante, repitiendo el proceso k veces.
+El estimador final es la media y desviación estándar de las métricas obtenidas en cada fold.
+Para clasificación se utiliza la variante Stratified K-Fold, que preserva la distribución de clases en cada partición.
+
+2.6. Modelos de Regresión
+La regresión es una tarea supervisada que predice una variable continua.
+En este trabajo se incluyen modelos lineales y no lineales: Regresión Lineal, Ridge, Lasso, ElasticNet, Árbol de Decisión, Random Forest, Gradient Boosting, KNN, SVR.
+Los modelos lineales con regularización introducen un término de penalización sobre los coeficientes: Ridge minimiza ||w||₂², Lasso minimiza ||w||₁, ElasticNet combina ambas.
+Las métricas de evaluación utilizadas son: R², MAE, RMSE, MAPE.
+
+2.7. Series de Tiempo
+Una serie de tiempo es una secuencia de observaciones indexadas temporalmente.
+El análisis de series de tiempo busca modelar la estructura temporal subyacente para realizar pronósticos fuera de muestra.
+Los componentes principales son: Tendencia, Estacionalidad, Ruido.
+
+2.8. ARIMA
+El modelo ARIMA (p, d, q) combina: Proceso autorregresivo de orden p, Diferenciación de orden d, Proceso de media móvil de orden q.
+La estacionariedad se verifica mediante el test aumentado de Dickey-Fuller (ADF).
+El modelo calibrado determina automáticamente el orden óptimo minimizando el criterio AIC.
+
+2.9. Holt-Winters
+El método Holt-Winters extiende el suavizado exponencial simple incorporando componentes de tendencia y estacionalidad.
+Mantiene tres ecuaciones de actualización con parámetros de suavizado.
+
+2.10. LSTM
+Las redes Long Short-Term Memory (LSTM) son un tipo de red neuronal recurrente diseñada para capturar dependencias de largo plazo en secuencias temporales.
+La unidad LSTM incorpora tres compuertas: Olvido, Entrada, Salida.
+Esto mitiga el problema del gradiente desvaneciente presente en RNNs estándar.
+En este trabajo se implementó una arquitectura de dos capas LSTM con: 64 unidades, 32 unidades, Dropout del 20%.
 """
 story.append(Paragraph(marco, normal_style))
 story.append(Spacer(1, 12))
@@ -82,10 +125,35 @@ story.append(Spacer(1, 12))
 # Metodología
 story.append(Paragraph("3. Metodología", styles['Heading1']))
 metodo = """
-3.1. Dataset: Big Black Money Dataset, 9,999 registros, 2013-2014.
-3.2. Preprocesamiento: Parsing fechas, normalización, log-transform, encoding categórico, escalado MinMax.
-3.3. División: K-Fold para clasificación/regresión, cronológica para series de tiempo.
-3.4. Configuración: K=5, semilla=42, SMOTE activado, etc.
+3.1. Dataset
+El dataset utilizado es el Big Black Money Dataset, que contiene 9,999 registros de transacciones financieras internacionales vinculadas con potenciales actividades de lavado de dinero.
+Cada registro incluye 14 variables: Date of Transaction, Amount (USD), Country, Transaction Type, Industry, Destination Country, Source of Money, Tax Haven Country, Reported by Authority, Shell Companies Involved, Money Laundering Risk Score, Year, Month, Day, Hour, DayOfWeek, Amount_log, Reported_bin, Risk_Score, High_Risk.
+El período de cobertura es enero 2013 a diciembre 2014.
+
+3.2. Preprocesamiento
+El pipeline incluyó:
+- Parsing de fechas con formato '%m/%d/%y %H:%M' y conversión a datetime.
+- Normalización del monto: quitar puntos como separadores de miles, convertir a float, aplicar log-transform (log1p) para escalar magnitudes.
+- Conversión de booleanos texto a int (True/False → 1/0).
+- Codificación categórica con LabelEncoder para variables como Country, Transaction Type, etc.
+- Definición de variable objetivo High_Risk = (Risk_Score >= 7).
+- Eliminación de nulos en columnas críticas.
+- Escalado MinMax para features numéricas.
+
+3.3. División Train/Test
+Para clasificación y regresión se utilizó Stratified K-Fold Cross Validation con k=5 splits, shuffle=True, random_state=42.
+Para series de tiempo se utilizó división cronológica: 90% entrenamiento, 10% prueba.
+
+3.4. Configuración Experimental
+- K-Fold splits: 5
+- Semilla aleatoria: 42
+- Umbral clasificación: 0.50 (ajustable en UI)
+- SMOTE: Activado por defecto, aplicado dentro de cada fold
+- Frecuencia serie: Diaria (D)
+- Periodos estacionales: 7 (semanal)
+- Épocas LSTM: 30 (reducido a 10 en ejecución para velocidad)
+- Lookback LSTM: 14
+- ARIMA calibrado: Grid search sobre (p,d,q) minimizando AIC
 """
 story.append(Paragraph(metodo, normal_style))
 story.append(Spacer(1, 12))
